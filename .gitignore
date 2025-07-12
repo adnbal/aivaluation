@@ -1,0 +1,5 @@
+# Ignore temporary and model files
+__pycache__/
+model/model.pkl
+*.pyc
+.DS_Store
