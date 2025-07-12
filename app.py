@@ -1,17 +1,29 @@
-
-# train_model.py
+import streamlit as st
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
 import joblib
+import os
 
-df = pd.read_csv("trademe_data.csv")
-X = df[["bedrooms", "bathrooms", "floor_area", "land_area"]]
-y = df["price"]
+# Load model
+model_path = os.path.join("model", "model.pkl")
+model = joblib.load(model_path)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+st.set_page_config(page_title="🏠 NZ Property Valuer", layout="wide")
+st.title("📍 Trade Me NZ Property Price Estimator")
 
-model = RandomForestRegressor()
-model.fit(X_train, y_train)
+# Input fields
+address = st.text_input("Enter address (optional):")
+bedrooms = st.slider("Number of bedrooms", 1, 10, 3)
+bathrooms = st.slider("Number of bathrooms", 1, 5, 2)
+floor_area = st.number_input("Floor area (sqm)", 30, 1000, 100)
+land_area = st.number_input("Land area (sqm)", 100, 3000, 500)
 
-joblib.dump(model, "model.pkl")
+if st.button("💰 Estimate Price"):
+    features = pd.DataFrame([{
+        "bedrooms": bedrooms,
+        "bathrooms": bathrooms,
+        "floor_area": floor_area,
+        "land_area": land_area
+    }])
+
+    prediction = model.predict(features)[0]
+    st.success(f"🏷️ Estimated Market Price: NZD ${int(prediction):,}")
